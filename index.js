@@ -1,15 +1,11 @@
 import Car from './Car';
 
-let car;
 export function exec() {
-  initCar();
+  let car = new Car();
   commandList.forEach(command => command.exec(car));
   return car.getData();
 }
 
-function initCar() {
-  car = new Car();
-}
 
 let commandList = [];
 export function addCommand(command) {

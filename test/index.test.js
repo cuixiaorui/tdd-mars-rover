@@ -1,5 +1,5 @@
 import { clear, addCommand, exec, size } from '../index';
-import { createInitCommand, createRotationCommand } from '../command/index';
+import { createInitCommand, createRotationCommand,createMoveCommand } from '../command/index';
 
 const initData = {
   position: {
@@ -49,6 +49,52 @@ describe('转向', () => {
       expectToLeft('w');
     });
   });
+});
+
+describe('移动', () => {
+
+   describe('前进', () => {
+
+    it('小车朝北(n)，位置为 (0,0) -> (0,-1) ', () => {
+      addInitCommand({rotation:"n"});
+      addCommand(createMoveCommand('forward'));
+      const result = exec();
+      expect(result.position).toEqual({
+          x: 0,
+          y: -1
+      });
+    });
+
+    it('小车朝南(s)，位置为 (0,0) -> (0,1) ', () => {
+      addInitCommand({rotation:"s",position:{x:0,y:0}});
+      addCommand(createMoveCommand('forward'));
+      const result = exec();
+      expect(result.position).toEqual({
+          x: 0,
+          y: 1
+      });
+    });
+
+    it('小车朝西(w)，位置为 (0,0) -> (-1,0) ', () => {
+      addInitCommand({rotation:"w",position:{x:0,y:0}});
+      addCommand(createMoveCommand('forward'));
+      const result = exec();
+      expect(result.position).toEqual({
+          x: -1,
+          y: 0
+      });
+    });
+
+    it('小车朝东(e)，位置为 (0,0) -> (1,0) ', () => {
+      addInitCommand({rotation:"e",position:{x:0,y:0}});
+      addCommand(createMoveCommand('forward'));
+      const result = exec();
+      expect(result.position).toEqual({
+          x: 1,
+          y: 0
+      });
+    });
+}); 
 });
 
 
