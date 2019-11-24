@@ -1,12 +1,18 @@
 import { clear, addCommand, exec, size } from '../index';
-import { createInitCommand, createRotationCommand,createMoveCommand } from '../command/index';
+import {
+  createInitCommand,
+  createRotationCommand,
+  createMoveCommand
+} from '../command/index';
+
+import { rotationConst } from '../const';
 
 const initData = {
   position: {
     x: 0,
     y: 0
   },
-  rotation: 'n'
+  rotation: rotationConst.North 
 };
 
 function addInitCommand(extendData) {
@@ -29,75 +35,71 @@ describe('转向', () => {
     };
   }
   describe('右转', () => {
-    const expectToRight = expectDir('right')
+    const expectToRight = expectDir('right');
 
     it('发送像右转向的命令后，由 n 变为 s', () => {
-      expectToRight('s');
+      expectToRight(rotationConst.South);
     });
 
     it('当前朝向为 w ，发送像右转向的命令后，由 w 变为 n', () => {
-      expectToRight('n', { rotation: 'w' });
+      expectToRight(rotationConst.North, { rotation: rotationConst.West });
     });
   });
   describe('左转', () => {
-    const expectToLeft = expectDir('left')
+    const expectToLeft = expectDir('left');
     it('发送向左转向的命令后，由 s 变为 n', () => {
-      expectToLeft('n', { rotation: 's' });
+      expectToLeft(rotationConst.North, { rotation: rotationConst.South });
     });
 
     it('当前朝向为 n ，发送像右转向的命令后，由 n 变为 w', () => {
-      expectToLeft('w');
+      expectToLeft(rotationConst.West);
     });
   });
 });
 
 describe('移动', () => {
-
-   describe('前进', () => {
-
+  describe('前进', () => {
     it('小车朝北(n)，位置为 (0,0) -> (0,-1) ', () => {
-      addInitCommand({rotation:"n"});
+      addInitCommand({ rotation: rotationConst.North });
       addCommand(createMoveCommand('forward'));
       const result = exec();
       expect(result.position).toEqual({
-          x: 0,
-          y: -1
+        x: 0,
+        y: -1
       });
     });
 
     it('小车朝南(s)，位置为 (0,0) -> (0,1) ', () => {
-      addInitCommand({rotation:"s",position:{x:0,y:0}});
+      addInitCommand({ rotation: rotationConst.South, position: { x: 0, y: 0 } });
       addCommand(createMoveCommand('forward'));
       const result = exec();
       expect(result.position).toEqual({
-          x: 0,
-          y: 1
+        x: 0,
+        y: 1
       });
     });
 
     it('小车朝西(w)，位置为 (0,0) -> (-1,0) ', () => {
-      addInitCommand({rotation:"w",position:{x:0,y:0}});
+      addInitCommand({ rotation: rotationConst.West, position: { x: 0, y: 0 } });
       addCommand(createMoveCommand('forward'));
       const result = exec();
       expect(result.position).toEqual({
-          x: -1,
-          y: 0
+        x: -1,
+        y: 0
       });
     });
 
     it('小车朝东(e)，位置为 (0,0) -> (1,0) ', () => {
-      addInitCommand({rotation:"e",position:{x:0,y:0}});
+      addInitCommand({ rotation: rotationConst.East, position: { x: 0, y: 0 } });
       addCommand(createMoveCommand('forward'));
       const result = exec();
       expect(result.position).toEqual({
-          x: 1,
-          y: 0
+        x: 1,
+        y: 0
       });
     });
-}); 
+  });
 });
-
-
 
 it('添加指令信息后，当前指令信息长度加一', () => {
   addCommand('1');

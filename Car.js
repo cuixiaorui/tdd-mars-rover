@@ -1,5 +1,14 @@
-// n s e w
-const rotations = ['n', 's', 'e', 'w'];
+import { rotationConst } from './const';
+const rotations = [
+  rotationConst.North,
+  rotationConst.South,
+  rotationConst.East,
+  rotationConst.West
+];
+const direction = {
+  Left: -1,
+  Right: 1
+};
 export default class Car {
   constructor() {}
 
@@ -7,31 +16,26 @@ export default class Car {
     this.setPosition(data.position);
     this.setRotation(data.rotation);
   }
-  toRight() {
-    this.setRotation(this.getNextRotation());
+
+  toDirection(dir) {
+    const currentIndex = this.getCurrentIndexByRotation();
+    let newIndex = (currentIndex + 4 + dir) % rotations.length;
+    let newRotation = rotations[newIndex];
+    this.setRotation(newRotation);
   }
 
-  getNextRotation() {
-    const currentIndex = this.getCurrentIndexByRotation();
-    const nextIndex =
-      currentIndex + 1 >= rotations.length ? 0 : currentIndex + 1;
-    return rotations[nextIndex];
+  toRight() {
+    this.toDirection(direction.Right);
   }
 
   toLeft() {
-    this.setRotation(this.getPreRotation());
-  }
-
-  getPreRotation() {
-    const currentIndex = this.getCurrentIndexByRotation();
-    const preIndex =
-      currentIndex - 1 < 0 ? rotations.length - 1 : currentIndex - 1;
-    return rotations[preIndex];
+    this.toDirection(direction.Left);
   }
 
   getCurrentIndexByRotation() {
     return rotations.indexOf(this.rotation);
   }
+
   setRotation(rotation) {
     this.rotation = rotation;
   }
@@ -61,5 +65,4 @@ export default class Car {
   setY(val) {
     this.position.y = val;
   }
-  
 }
