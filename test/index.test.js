@@ -15,7 +15,7 @@ function addInitCommand(extendData) {
     },
     rotation: rotationConst.North
   };
-  const newData = Object.assign({}, initData, extendData)
+  const newData = Object.assign({}, initData, extendData);
   addCommand(createInitCommand(newData));
 }
 
@@ -33,7 +33,7 @@ it('发送初始化信息后，获取到的小车信息和初始化信息一致'
 });
 
 describe('转向', () => {
-  function expectDir(dir) {
+  function handleDir(dir) {
     return (expectValue, extendData = {}) => {
       addInitCommand(extendData);
       addCommand(createRotationCommand(dir));
@@ -42,7 +42,7 @@ describe('转向', () => {
     };
   }
   describe('右转', () => {
-    const expectToRight = expectDir('right');
+    const expectToRight = handleDir('right');
 
     it('发送像右转向的命令后，由 n 变为 s', () => {
       expectToRight(rotationConst.South);
@@ -54,7 +54,7 @@ describe('转向', () => {
   });
 
   describe('左转', () => {
-    const expectToLeft = expectDir('left');
+    const expectToLeft = handleDir('left');
     it('发送向左转向的命令后，由 s 变为 n', () => {
       expectToLeft(rotationConst.North, { rotation: rotationConst.South });
     });
@@ -66,14 +66,17 @@ describe('转向', () => {
 });
 
 describe('移动', () => {
-  describe('前进', () => {
-    const handleForward = (rotation, expectPosition) => {
+  const handleMove = key => {
+    return (rotation, expectPosition) => {
       addInitCommand({ rotation });
-      addCommand(createMoveCommand('forward'));
+      addCommand(createMoveCommand(key));
       const result = exec();
       expect(result.position).toEqual(expectPosition);
     };
+  };
 
+  describe('前进', () => {
+    const handleForward = handleMove('forward')
     it('小车朝北(n)，位置为 (0,0) -> (0,-1) ', () => {
       handleForward(rotationConst.North, { x: 0, y: -1 });
     });
@@ -88,6 +91,25 @@ describe('移动', () => {
 
     it('小车朝东(e)，位置为 (0,0) -> (1,0) ', () => {
       handleForward(rotationConst.East, { x: 1, y: 0 });
+    });
+  });
+
+  describe('后退', () => {
+    const handleBack = handleMove('back')
+    it('小车朝北(n)，位置为 (0,0) -> (0,1) ', () => {
+      handleBack(rotationConst.North, { x: 0, y: 1 });
+    });
+
+    it('小车朝南(s)，位置为 (0,0) -> (0,-1) ', () => {
+      handleBack(rotationConst.South, { x: 0, y: -1 });
+    });
+
+    it('小车朝西(w)，位置为 (0,0) -> (1,0) ', () => {
+      handleBack(rotationConst.West, { x: 1, y: 0 });
+    });
+
+    it('小车朝东(e)，位置为 (0,0) -> (-1,0) ', () => {
+      handleBack(rotationConst.East, { x: -1, y: 0 });
     });
   });
 });
