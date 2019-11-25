@@ -1,5 +1,5 @@
-import Car from './Car'
-import MarsMap from './MarsMap';
+import {createCar} from './Car'
+import {createMarsMap} from './MarsMap';
 
 export function exec() {
   let car = createCar(); 
@@ -14,14 +14,6 @@ function execCommand(car,map){
     const result = handleExec(car,map,command);
     if(result) return;
   }
-}
-
-function createCar(){
-  return new Car();
-}
-
-function createMarsMap(){
-  return new MarsMap();
 }
 
 function handleExec(car,map,command) {

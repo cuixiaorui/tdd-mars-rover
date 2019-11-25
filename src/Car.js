@@ -66,3 +66,7 @@ export default class Car {
     this.position.y = val;
   }
 }
+
+export function createCar(){
+  return new Car();
+}
