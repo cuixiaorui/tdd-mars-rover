@@ -1,35 +1,32 @@
-import { clear, addCommand, exec, size } from '../index';
+import { clear, addCommand, exec, size, __RewireAPI__ as Main } from '../src/index';
 import {
   createInitCommand,
   createRotationCommand,
-  createMoveCommand
-} from '../command/index';
+  createMoveCommand,
+  createRangeCommand
+} from '../src/command/index';
 
-import { rotationConst } from '../const';
+import { rotationConst } from '../src/const';
 
-function addInitCommand(extendData) {
-  const initData = {
+function createInitData(){
+  return {
     position: {
       x: 0,
       y: 0
     },
     rotation: rotationConst.North
-  };
-  const newData = Object.assign({}, initData, extendData);
+  }
+}
+
+function addInitCommand(extendData) {
+  const newData = Object.assign({}, createInitData(), extendData);
   addCommand(createInitCommand(newData));
 }
 
 it('发送初始化信息后，获取到的小车信息和初始化信息一致', () => {
   addInitCommand();
   const result = exec();
-  const initData = {
-    position: {
-      x: 0,
-      y: 0
-    },
-    rotation: rotationConst.North
-  };
-  expect(result).toEqual(initData);
+  expect(result).toEqual(createInitData());
 });
 
 describe('转向', () => {
@@ -67,16 +64,20 @@ describe('转向', () => {
 
 describe('移动', () => {
   const handleMove = key => {
-    return (rotation, expectPosition) => {
+    return (rotation, expectPosition, num = 1) => {
       addInitCommand({ rotation });
-      addCommand(createMoveCommand(key));
+
+      for (let index = 0; index < num; index++) {
+        addCommand(createMoveCommand(key));
+      }
       const result = exec();
       expect(result.position).toEqual(expectPosition);
     };
   };
 
+  const handleForward = handleMove('forward');
+  const handleBack = handleMove('back');
   describe('前进', () => {
-    const handleForward = handleMove('forward')
     it('小车朝北(n)，位置为 (0,0) -> (0,-1) ', () => {
       handleForward(rotationConst.North, { x: 0, y: -1 });
     });
@@ -95,7 +96,6 @@ describe('移动', () => {
   });
 
   describe('后退', () => {
-    const handleBack = handleMove('back')
     it('小车朝北(n)，位置为 (0,0) -> (0,1) ', () => {
       handleBack(rotationConst.North, { x: 0, y: 1 });
     });
@@ -110,6 +110,50 @@ describe('移动', () => {
 
     it('小车朝东(e)，位置为 (0,0) -> (-1,0) ', () => {
       handleBack(rotationConst.East, { x: -1, y: 0 });
+    });
+
+    it('小车朝东(e)，后退 2 次 ，位置为 (0,0) -> (-2,0) ', () => {
+      handleBack(rotationConst.East, { x: -2, y: 0 }, 2);
+    });
+  });
+
+  describe('障碍物', () => {
+    it('小车朝北(n)，位置为 (0,0) ，前进遇到障碍物(0,1)，停留在原地(0,0)', () => {
+      addCommand(
+        createRangeCommand({
+          width: 400,
+          height: 400,
+          barrierList: [{ x: 0, y: -1 }]
+        })
+      );
+      handleForward(rotationConst.North, { x: 0, y: 0 });
+    });
+
+    it('火星车遇到了障碍物导致后续指令受阻，应该停留在原地，放弃执行后续指令，并立即向地球回报, 添加了 5 个命令，应该只执行 3 次', () => {
+      let count = 0;
+      const mockHandleExec = () => {
+        const fn = Main.__get__('handleExec');
+        Main.__Rewire__('handleExec', function(...args) {
+          count++;
+          return fn(...args);
+        });
+      };
+      mockHandleExec();
+
+      addCommand(
+        createRangeCommand({
+          width: 400,
+          height: 400,
+          barrierList: [{ x: 0, y: -1 }]
+        })
+      );
+      addInitCommand({rotation:rotationConst.North});
+      addCommand(createMoveCommand("forward"));
+      addCommand(createMoveCommand("forward"));
+      addCommand(createMoveCommand("forward"));
+      const result = exec();
+      expect(result.position).toEqual({x:0,y:0});
+      expect(count).toBe(3);
     });
   });
 });
