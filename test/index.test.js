@@ -8,7 +8,7 @@ import {
 
 import { rotationConst } from '../src/const';
 
-function createInitData(){
+function createInitData() {
   return {
     position: {
       x: 0,
@@ -78,16 +78,17 @@ describe('移动', () => {
   const handleForward = handleMove('forward');
   const handleBack = handleMove('back');
   describe('前进', () => {
-    it('小车朝北(n)，位置为 (0,0) -> (0,-1) ', () => {
-      handleForward(rotationConst.North, { x: 0, y: -1 });
+    it('小车朝北(n)，位置为 (0,0) -> (0,0) 不能超过地图范围', () => {
+      handleForward(rotationConst.North, { x: 0, y: 0 });
     });
+
 
     it('小车朝南(s)，位置为 (0,0) -> (0,1) ', () => {
       handleForward(rotationConst.South, { x: 0, y: 1 });
     });
 
-    it('小车朝西(w)，位置为 (0,0) -> (-1,0) ', () => {
-      handleForward(rotationConst.West, { x: -1, y: 0 });
+    it('小车朝西(w)，位置为 (0,0) -> (0,0) 不能超过地图范围', () => {
+      handleForward(rotationConst.West, { x: 0, y: 0 });
     });
 
     it('小车朝东(e)，位置为 (0,0) -> (1,0) ', () => {
@@ -100,21 +101,18 @@ describe('移动', () => {
       handleBack(rotationConst.North, { x: 0, y: 1 });
     });
 
-    it('小车朝南(s)，位置为 (0,0) -> (0,-1) ', () => {
-      handleBack(rotationConst.South, { x: 0, y: -1 });
+    it('小车朝南(s)，位置为 (0,0) -> (0,0) 不能超过地图范围 ', () => {
+      handleBack(rotationConst.South, { x: 0, y: 0 });
     });
 
     it('小车朝西(w)，位置为 (0,0) -> (1,0) ', () => {
       handleBack(rotationConst.West, { x: 1, y: 0 });
     });
 
-    it('小车朝东(e)，位置为 (0,0) -> (-1,0) ', () => {
-      handleBack(rotationConst.East, { x: -1, y: 0 });
+    it('小车朝东(e)，位置为 (0,0) -> (0,0) 不能超过地图范围', () => {
+      handleBack(rotationConst.East, { x: 0, y: 0 });
     });
 
-    it('小车朝东(e)，后退 2 次 ，位置为 (0,0) -> (-2,0) ', () => {
-      handleBack(rotationConst.East, { x: -2, y: 0 }, 2);
-    });
   });
 
   describe('障碍物', () => {
@@ -133,7 +131,7 @@ describe('移动', () => {
       let count = 0;
       const mockHandleExec = () => {
         const fn = Main.__get__('handleExec');
-        Main.__Rewire__('handleExec', function(...args) {
+        Main.__Rewire__('handleExec', function (...args) {
           count++;
           return fn(...args);
         });
@@ -144,18 +142,19 @@ describe('移动', () => {
         createRangeCommand({
           width: 400,
           height: 400,
-          barrierList: [{ x: 0, y: -1 }]
+          barrierList: [{ x: 0, y: 1 }]
         })
       );
-      addInitCommand({rotation:rotationConst.North});
+      addInitCommand({ rotation: rotationConst.South });
       addCommand(createMoveCommand("forward"));
       addCommand(createMoveCommand("forward"));
       addCommand(createMoveCommand("forward"));
       const result = exec();
-      expect(result.position).toEqual({x:0,y:0});
+      expect(result.position).toEqual({ x: 0, y: 0 });
       expect(count).toBe(3);
     });
   });
+
 });
 
 it('添加指令信息后，当前指令信息长度加一', () => {

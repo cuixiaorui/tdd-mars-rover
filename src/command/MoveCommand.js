@@ -5,27 +5,27 @@ export default class MoveCommand {
     this.map = null;
   }
 
-  exec(car,map) {
+  exec(car, map) {
     this.car = car;
     this.map = map;
 
     const newPosition = this.getNewPosition();
 
-    if(map.isBarrier(this.getCheckPosition(newPosition))){
+    if (map.isBarrier(this.getCheckPosition(newPosition))) {
       return true
-    }    
+    }
 
     this.updateCarPosition(newPosition)
   }
 
-  getCheckPosition(newPosition){
+  getCheckPosition(newPosition) {
     const position = this.car.getPosition();
     const operation = this.getOperation();
-    const { prop } = operation; 
-    return Object.assign({},position,{[prop]:newPosition})
+    const { prop } = operation;
+    return Object.assign({}, position, { [prop]: newPosition })
   }
 
-  updateCarPosition(position){
+  updateCarPosition(position) {
     const { fn } = this.getOperation();
     fn.call(this.car, position);
   }
@@ -33,9 +33,10 @@ export default class MoveCommand {
   getNewPosition() {
     const position = this.car.getPosition();
     const operation = this.getOperation();
-    const { prop } = operation; 
+    const { prop } = operation;
     const dir = operation[this.dir].val;
-    return position[prop] + dir;
+    const newValue = position[prop] + dir;
+    return Math.max(newValue, 0)
   }
 
   getOperation() {
